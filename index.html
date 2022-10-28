@@ -81,41 +81,88 @@
     var form = document.getElementById('form');
     var input = document.getElementById('input');
     var ul = document.getElementById('ul');
+    var inpu2 = document.getElementById('nom');
+    var rio =""
 
 
     function inputValue() {
-      inpu = document.getElementById('nom').value;
+      inpu = inpu2.value;
       socket.emit("tableau",inpu)
     }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (input.value) {
-        socket.emit('chat message', inpu + " : " + input.value);
-        input.value = '';
+        console.log(inpu2.value)
+        if(inpu2.value)
+        {
+          socket.emit('chat message', inpu + " : "+ input.value);
+          input.value=''
+        }
+        else
+        {
+          tableau2 = input.value.split(" ")
+          if(tableau2[0].substring(0,1)=="/" && tableau2[0] == "/nick")
+          {
+            console.log("MErci FRERO")
+            rio=tableau2[1]
+            socket.emit("racc",tableau2[1])
+            input.value=''
+          
+          }
+          else
+          {
+            socket.emit('chat message', rio + " : "+ input.value);
+            input.value='';
+          }
+
+        }
+       // else{
+       // socket.emit('chat message', inpu + " : " + input.value);
+       // input.value = '';
+       // }
       }
     });
     socket.on("tableauremplis",(id) => {
-      
+      console.log(id)
      //console.log(id[0].name);
     // console.log(id.length)
+    while(ul.firstChild)
+    {
+      ul.removeChild(ul.firstChild)
+    }
     
      for (let i = 0; i < id.length; i++)
      {
        var li = document.createElement("li");
-        console.log(id[i].name) 
+      //  console.log(id[i].name) 
         li.textContent = id[i].name+' \u2705';
         ul.appendChild(li);
      }
      
       
-      
+      // pour les channel faire un socket.leave ainsi qu'un socket.join pour cree zeer
   
     })
     socket.on('chat message', function (msg) {
+     tableau = msg.split(":")
+     tableau2 = tableau[1].trim().split(" ")
+     if(tableau2[0].substring(0,1)=="/")
+     {
+      console.log("MErci FRERO")
+      switch (tableau2[0])
+      {
+        case "/tesmort":
+              socket.emit("racc",tableau2[1])
+      }
+        
+     }
+     else
+    { 
       var item = document.createElement('li');
       item.textContent = msg;
       messages.appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
+    }
     });
   </script>
   
