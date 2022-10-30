@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const id = [];
+var recup="";
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -14,8 +15,15 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   
   console.log('a user connected');
-  socket.join("Briiiaaaaa");
+  socket.join("Général");
   console.log(socket.rooms)
+  socket.on("newchannel",(recuperer)=>
+  {
+    recup = recuperer;
+    socket.leave("Général")
+    socket.join(recuperer)
+    console.log(socket.rooms);
+  })
 
 
   socket.on("tableau",(inpu)=>{
@@ -38,9 +46,21 @@ io.on('connection', (socket) => {
   })
   
   
-  
+  socket.on("retour",(eroiehrio)=>
+  {
+    socket.leave(recup)
+    socket.join("Général")
+    console.log(socket.rooms)
+  })
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+    
+    console.log(recup)
+   // socket.on("newchannel",(oishf)=>{console.log(oishf)})
+    if(recup == "")
+    {
+      io.to("Général").emit('chat message', msg);
+    }
+    io.to(recup).emit('chat message', msg);
   });
 
   socket.on('disconnect', () => {
